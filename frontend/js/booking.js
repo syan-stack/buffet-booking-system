@@ -29,7 +29,7 @@ async function submitBooking() {
   };
 
   try {
-    const res = await fetch('http://localhost:3000/api/booking', {
+    const res = await fetch('https://buffet-booking-system.onrender.com', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)

@@ -5,7 +5,7 @@ if (!bookingId) {
 }
 
 async function verifyPayment() {
-  const res = await fetch(`http://localhost:3000/api/booking/${bookingId}`);
+  const res = await fetch(`https://buffet-booking-system.onrender.com`);
   const data = await res.json();
 
   // ❌ JIKA BUKAN PAID

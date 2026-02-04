@@ -21,7 +21,7 @@ const payBtn = document.getElementById('payBtn');
 // ===============================
 async function loadBooking() {
   try {
-    const res = await fetch(`http://localhost:3000/api/booking/${bookingId}`);
+    const res = await fetch(`https://buffet-booking-system.onrender.com`);
 
     if (!res.ok) {
       throw new Error('Gagal ambil data booking');
@@ -61,7 +61,8 @@ payBtn.addEventListener('click', async () => {
   payBtn.textContent = 'Menghubungkan ke Billplz...';
 
   try {
-    const res = await fetch('http://localhost:3000/api/payment/billplz', {
+    const res = await fetch('https://buffet-booking-system.onrender.com', 
+      {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

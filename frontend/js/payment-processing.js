@@ -7,7 +7,7 @@ if (!bookingId) {
 async function verify() {
   try {
     const res = await fetch(
-      `http://localhost:3000/api/payment/verify/${bookingId}`
+      `https://buffet-booking-system.onrender.com${bookingId}`
     );
 
     const data = await res.json();
