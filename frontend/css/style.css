@@ -1,0 +1,305 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+}
+
+/* FULL SCREEN HERO */
+.hero {
+  width: 100%;
+  height: 100vh;
+  background: url('../images/kopi-tenggek.jpg') no-repeat center center;
+  background-size: cover;
+  position: relative;
+}
+
+/* OVERLAY GELAP */
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+/* CENTER CONTENT */
+.hero-content {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: #fff;
+}
+
+.hero-content h1 {
+  font-size: 3rem;
+}
+
+.hero-content h2 {
+  font-size: 1.5rem;
+  font-weight: 300;
+  margin: 10px 0;
+}
+
+.hero-content p {
+  margin: 20px 0;
+}
+
+.cta-btn {
+  background: black;
+  color: white;
+  padding: 14px 40px;
+  text-decoration: none;
+}
+/* ===== LANDING PAGE FULL SCREEN ===== */
+
+.hero {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  background: url('../images/kopi-tenggek.jpg') no-repeat center center;
+  background-size: cover;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+/* CENTER SEMUA CONTENT */
+.hero-content {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;   /* CENTER MENEGAK */
+  align-items: center;       /* CENTER MELINTANG */
+  text-align: center;
+  color: #fff;
+  padding: 20px;
+}
+
+.hero-content h1 {
+  font-size: 3rem;
+  margin-bottom: 5px;
+}
+
+.hero-content h2 {
+  font-size: 1.5rem;
+  font-weight: 300;
+  margin-bottom: 15px;
+}
+
+.hero-content p {
+  margin-bottom: 30px;
+  font-size: 1.1rem;
+}
+
+/* CTA UTAMA */
+.cta-btn {
+  background: #000;
+  color: #fff;
+  padding: 14px 40px;
+  text-decoration: none;
+  font-size: 1rem;
+  margin-bottom: 20px;
+}
+
+/* ===== SOCIAL BUTTONS MENEGAK ===== */
+
+.social-actions.vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 220px;
+}
+
+.social-btn {
+  border: 1px solid #fff;
+  color: #fff;
+  padding: 10px 0;
+  text-decoration: none;
+  font-size: 0.9rem;
+  text-align: center;
+  transition: 0.3s ease;
+}
+
+.social-btn:hover {
+  background: #fff;
+  color: #000;
+}
+
+/* ===== SOCIAL BUTTON BASE ===== */
+
+.social-actions.vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 240px;
+}
+
+.social-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  padding: 12px 0;
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+
+  color: #fff;
+  border-radius: 4px;
+
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.social-btn .icon {
+  font-size: 1.2rem;
+}
+
+/* ===== WHATSAPP ===== */
+
+.whatsapp {
+  background: #25D366;
+  animation: pulse 2s infinite;
+}
+
+.whatsapp:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(37, 211, 102, 0.8);
+}
+
+/* ===== INSTAGRAM ===== */
+
+.instagram {
+  background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+}
+
+.instagram:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(255, 0, 150, 0.5);
+}
+
+/* ===== TIKTOK ===== */
+
+.tiktok {
+  background: #000;
+}
+
+.tiktok:hover {
+  animation: shake 0.3s;
+}
+
+/* ===== WAZE ===== */
+
+.waze {
+  background: #33ccff;
+}
+
+.waze:hover {
+  box-shadow: 0 0 20px rgba(51, 204, 255, 0.9);
+  transform: scale(1.05);
+}
+
+/* ===== KEYFRAMES ===== */
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); }
+  70% { box-shadow: 0 0 0 12px rgba(37, 211, 102, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+}
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  50% { transform: translateX(3px); }
+  75% { transform: translateX(-3px); }
+  100% { transform: translateX(0); }
+}
+
+/* ===== BOOKING RESET ===== */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+/* ===== BACKGROUND ===== */
+
+.hero {
+  min-height: 100vh;
+  background: url('../images/kopi-tenggek.jpg') no-repeat center center / cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+/* ===== FORM ===== */
+
+.booking-container {
+  position: relative;
+  z-index: 2;
+
+  background: #fff;
+  padding: 32px;
+  width: 100%;
+  max-width: 420px;
+  border-radius: 6px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.booking-container h2 {
+  text-align: center;
+}
+
+.booking-container label {
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.booking-container input {
+  padding: 10px;
+  font-size: 1rem;
+}
+
+.total {
+  margin-top: 10px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+.booking-container button {
+  margin-top: 14px;
+  padding: 14px;
+  font-size: 1rem;
+  background: black;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+

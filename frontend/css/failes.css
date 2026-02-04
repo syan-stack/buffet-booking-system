@@ -1,0 +1,62 @@
+/* CONTAINER TENGAH */
+.failed-container {
+  position: relative;
+  z-index: 2;
+
+  background: #ffffff;
+  width: 100%;
+  max-width: 460px;
+  padding: 40px 32px;
+  border-radius: 10px;
+
+  text-align: center;
+
+  animation: fadeIn 0.4s ease;
+}
+
+/* TITLE */
+.failed-container h1 {
+  font-size: 1.8rem;
+  margin-bottom: 16px;
+}
+
+/* TEXT */
+.failed-msg {
+  font-size: 1.05rem;
+  margin-bottom: 12px;
+}
+
+.note {
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 28px;
+}
+
+/* BUTTON */
+.retry-btn {
+  display: inline-block;
+  padding: 14px 28px;
+  background: #000;
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.95rem;
+  border-radius: 4px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.retry-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+/* ANIMATION */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
