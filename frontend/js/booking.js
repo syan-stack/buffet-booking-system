@@ -1,3 +1,5 @@
+const API_BASE = "https://buffet-booking-system.onrender.com";
+
 const adultInput = document.getElementById('adult');
 const childInput = document.getElementById('child');
 const paxEl = document.getElementById('total_pax');
@@ -29,7 +31,8 @@ async function submitBooking() {
   };
 
   try {
-    const res = await fetch('https://buffet-booking-system.onrender.com', {
+    // 🔥 FIX UTAMA: ENDPOINT BETUL
+    const res = await fetch(`${API_BASE}/api/bookings`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -39,10 +42,9 @@ async function submitBooking() {
 
     const data = await res.json();
 
-    // SIMPAN booking_id
-    localStorage.setItem('booking_id', data.id);
+    // 🔥 FIX UTAMA: booking_id BETUL
+    localStorage.setItem('booking_id', data.booking_id);
 
-    // REDIRECT CONFIRM
     window.location.href = 'payment.html';
 
   } catch (err) {
