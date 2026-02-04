@@ -25,10 +25,13 @@ async function loadBooking() {
 
     document.getElementById('name').textContent = data.customer_name;
     document.getElementById('phone').textContent = data.phone;
-    document.getElementById('date').textContent = data.booking_date.split('T')[0];
+    document.getElementById('date').textContent =
+      data.booking_date.split('T')[0];
     document.getElementById('pax').textContent = data.total_pax;
-    document.getElementById('fee').textContent = TRANSACTION_FEE.toFixed(2);
-    document.getElementById('amount').textContent = finalAmount.toFixed(2);
+    document.getElementById('fee').textContent =
+      TRANSACTION_FEE.toFixed(2);
+    document.getElementById('amount').textContent =
+      finalAmount.toFixed(2);
 
   } catch (err) {
     console.error(err);
@@ -43,16 +46,23 @@ payBtn.addEventListener('click', async () => {
   payBtn.textContent = 'Menghubungkan ke Billplz...';
 
   try {
-    // 🔥 FIX UTAMA: ENDPOINT CREATE PAYMENT BETUL
+    // 🔥 FIX MUKTAMAD: ENDPOINT IKUT BACKEND (/billplz)
     const res = await fetch(
-      `${API_BASE}/api/payment/create/${bookingId}`,
-      { method: 'POST' }
+      `${API_BASE}/api/payment/billplz`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          booking_id: bookingId
+        })
+      }
     );
 
     if (!res.ok) throw new Error('Gagal cipta bil');
 
     const data = await res.json();
 
+    // 🔥 REDIRECT TERUS KE BILLPLZ
     window.location.href = data.payment_url;
 
   } catch (err) {
