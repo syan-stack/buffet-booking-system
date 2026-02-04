@@ -21,7 +21,10 @@ const payBtn = document.getElementById('payBtn');
 // ===============================
 async function loadBooking() {
   try {
-    const res = await fetch(`https://buffet-booking-system.onrender.com`);
+    // ✅ FIX: GUNA ENDPOINT BETUL + bookingId
+    const res = await fetch(
+      `https://buffet-booking-system.onrender.com/api/bookings/${bookingId}`
+    );
 
     if (!res.ok) {
       throw new Error('Gagal ambil data booking');
@@ -61,16 +64,16 @@ payBtn.addEventListener('click', async () => {
   payBtn.textContent = 'Menghubungkan ke Billplz...';
 
   try {
-    const res = await fetch('https://buffet-booking-system.onrender.com', 
+    // ✅ FIX: GUNA ENDPOINT CREATE PAYMENT BETUL
+    const res = await fetch(
+      `https://buffet-booking-system.onrender.com/api/payment/create/${bookingId}`,
       {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        booking_id: bookingId
-      })
-    });
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
 
     if (!res.ok) {
       throw new Error('Backend gagal cipta bill');
@@ -93,4 +96,3 @@ payBtn.addEventListener('click', async () => {
     payBtn.textContent = 'SAHKAN BAYARAN';
   }
 });
-
