@@ -1,0 +1,19 @@
+[build]
+  base = "frontend"
+  publish = "."
+
+[[redirects]]
+  from = "/payment-processing.html"
+  to = "/payment-processing.html"
+  status = 200
+
+[[redirects]]
+  from = "/success.html"
+  to = "/success.html"
+  status = 200
+
+[[redirects]]
+  from = "/payment-failed.html"
+  to = "/payment-failed.html"
+  status = 200
+
