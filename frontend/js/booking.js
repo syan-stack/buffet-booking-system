@@ -31,7 +31,6 @@ async function submitBooking() {
   };
 
   try {
-    // 🔥 FIX UTAMA: ENDPOINT BETUL
     const res = await fetch(`${API_BASE}/api/bookings`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -42,8 +41,8 @@ async function submitBooking() {
 
     const data = await res.json();
 
-    // 🔥 FIX UTAMA: booking_id BETUL
-    localStorage.setItem('booking_id', data.booking_id);
+    // ✅ INI FIX MUKTAMAD
+    localStorage.setItem('booking_id', data.id);
 
     window.location.href = 'payment.html';
 
@@ -52,4 +51,3 @@ async function submitBooking() {
     console.error(err);
   }
 }
-
