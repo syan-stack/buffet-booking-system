@@ -1,17 +1,24 @@
-const bookingId = localStorage.getItem('booking_id');
+const API_BASE = "https://buffet-booking-system.onrender.com";
+
+const bookingId = localStorage.getItem("booking_id");
 
 if (!bookingId) {
-  window.location.href = 'payment-failed.html';
+  alert("Maklumat tempahan tidak dijumpai.");
+  window.location.href = "index.html";
 }
 
-async function verifyPayment() {
-  const res = await fetch(`https://buffet-booking-system.onrender.com`);
-  const data = await res.json();
+document.getElementById("bookingId").textContent = bookingId;
 
-  // ❌ JIKA BUKAN PAID
-  if (data.payment_status !== 'PAID') {
-    window.location.href = 'payment-failed.html';
-  }
-}
+fetch(`${API_BASE}/api/bookings/${bookingId}`)
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById("custName").textContent = data.customer_name;
+    document.getElementById("bookingDate").textContent =
+      new Date(data.booking_date).toLocaleDateString("ms-MY");
 
-verifyPayment();
+    // OPTIONAL: buang booking_id lepas berjaya
+    localStorage.removeItem("booking_id");
+  })
+  .catch(() => {
+    alert("Gagal papar maklumat tempahan.");
+  });

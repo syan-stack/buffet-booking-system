@@ -1,36 +1,24 @@
-<!DOCTYPE html>
-<html lang="ms">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bayaran Berjaya | Kopi Tenggek</title>
-  <link rel="stylesheet" href="css/booking.css" />
-  <link rel="stylesheet" href="css/success.css" />
-</head>
+<div class="success-container">
+  <h1> TEMPAHAN BERJAYA!</h1>
 
-<body>
-<div class="hero">
-  <div class="overlay"></div>
+  <p class="success-msg">
+    Terima kasih. Bayaran anda telah berjaya diproses.
+  </p>
 
-  <div class="success-container">
-    <h1>🎉 TEMPAHAN ANDA TELAH BERJAYA!</h1>
+  <div class="receipt-box">
+    <h3>Maklumat Tempahan</h3>
 
-    <p class="success-msg">
-      Terima kasih! Tempahan buffet anda telah berjaya disahkan.
-    </p>
-
-    <p class="note">
-      Sila simpan bukti tempahan ini.  
-      Pihak Kopi Tenggek akan hubungi anda jika perlu.
-    </p>
-
-    <a href="index.html" class="success-btn">
-      Kembali ke Laman Utama
-    </a>
+    <p><strong>Nama:</strong> <span id="custName">-</span></p>
+    <p><strong>ID Tempahan:</strong> <span id="bookingId">-</span></p>
+    <p><strong>Tarikh:</strong> <span id="bookingDate">-</span></p>
+    <p><strong>Status:</strong> <span class="paid">PAID</span></p>
   </div>
-</div>
 
-<!-- 🔥 WAJIB DEFER -->
-<script src="js/success.js" defer></script>
-</body>
-</html>
+  <p class="note">
+     Sila screenshot skrin ini sebagai bukti pembayaran.
+  </p>
+
+  <a href="index.html" class="success-btn">
+    Kembali ke Laman Utama
+  </a>
+</div>
