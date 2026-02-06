@@ -2,6 +2,7 @@
 <html lang="ms">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Booking</title>
   <link rel="stylesheet" href="css/booking.css">
 </head>
@@ -14,22 +15,22 @@
     <h2>BUTIRAN TEMPAHAN</h2>
 
     <label>Nama Pelanggan</label>
-    <input id="customer_name">
+    <input id="customer_name" type="text" placeholder="Nama penuh">
 
     <label>No Telefon</label>
-    <input id="phone">
+    <input id="phone" type="tel" placeholder="0123456789">
 
     <label>Tarikh</label>
     <input type="date" id="booking_date">
 
     <label>Dewasa (RM49.90)</label>
-    <input type="number" id="adult" value="1" min="0">
+    <input type="number" id="adult" value="1" min="0" inputmode="numeric">
 
-    <label>Kanak-kanak/OKU/Wargaemas (RM39.90)</label>
-    <input type="number" id="child" value="0" min="0">
+    <label>Kanak-kanak / OKU / Warga Emas (RM39.90)</label>
+    <input type="number" id="child" value="0" min="0" inputmode="numeric">
 
     <label>Email</label>
-    <input id="email">
+    <input id="email" type="email" placeholder="email@example.com">
 
     <div class="summary">
       Jumlah Pax: <span id="total_pax">1</span>
@@ -39,14 +40,11 @@
       Total: RM <span id="total_amount">49.90</span>
     </div>
 
-    <button type="button" id="payBtn">
-  PEMBAYARAN
-</button>
-
+    <button type="button" id="payBtn">PEMBAYARAN</button>
+  </div>
 </div>
 
 <script src="js/booking.js"></script>
 </body>
 </html>
-
 
