@@ -1,24 +1,37 @@
-const API_BASE = "https://buffet-booking-system.onrender.com";
-
-const bookingId = localStorage.getItem("booking_id");
+const bookingId = localStorage.getItem('booking_id');
 
 if (!bookingId) {
-  alert("Maklumat tempahan tidak dijumpai.");
-  window.location.href = "index.html";
+  window.location.href = 'payment-failed.html';
 }
 
-document.getElementById("bookingId").textContent = bookingId;
+async function loadReceipt() {
+  try {
+    const res = await fetch(
+      `https://buffet-booking-system.onrender.com/api/bookings/${bookingId}`
+    );
 
-fetch(`${API_BASE}/api/bookings/${bookingId}`)
-  .then(res => res.json())
-  .then(data => {
-    document.getElementById("custName").textContent = data.customer_name;
-    document.getElementById("bookingDate").textContent =
-      new Date(data.booking_date).toLocaleDateString("ms-MY");
+    if (!res.ok) throw new Error('Failed fetch booking');
 
-    // OPTIONAL: buang booking_id lepas berjaya
-    localStorage.removeItem("booking_id");
-  })
-  .catch(() => {
-    alert("Gagal papar maklumat tempahan.");
-  });
+    const data = await res.json();
+
+    document.getElementById('custName').textContent =
+      data.customer_name || '-';
+
+    document.getElementById('bookingId').textContent =
+      data.id || bookingId;
+
+    document.getElementById('bookingDate').textContent =
+      new Date(data.booking_date).toLocaleDateString('ms-MY');
+
+    // OPTIONAL: clear selepas papar
+    setTimeout(() => {
+      localStorage.removeItem('booking_id');
+    }, 30000);
+
+  } catch (err) {
+    console.error(err);
+    window.location.href = 'payment-failed.html';
+  }
+}
+
+loadReceipt();

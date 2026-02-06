@@ -78,3 +78,16 @@
   color: #00ff9c;
   font-weight: bold;
 }
+/* FORCE CENTER DI SCREEN (PHONE & DESKTOP) */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+}

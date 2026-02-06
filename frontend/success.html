@@ -1,24 +1,44 @@
-<div class="success-container">
-  <h1> TEMPAHAN BERJAYA!</h1>
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bayaran Berjaya | Kopi Tenggek</title>
 
-  <p class="success-msg">
-    Terima kasih. Bayaran anda telah berjaya diproses.
-  </p>
+  <!-- STYLE SAMA DENGAN PAGE LAIN -->
+  <link rel="stylesheet" href="css/booking.css" />
+  <link rel="stylesheet" href="css/success.css" />
+</head>
 
-  <div class="receipt-box">
-    <h3>Maklumat Tempahan</h3>
+<body>
 
-    <p><strong>Nama:</strong> <span id="custName">-</span></p>
-    <p><strong>ID Tempahan:</strong> <span id="bookingId">-</span></p>
-    <p><strong>Tarikh:</strong> <span id="bookingDate">-</span></p>
-    <p><strong>Status:</strong> <span class="paid">PAID</span></p>
+<div class="hero">
+  <div class="overlay"></div>
+
+  <div class="success-container">
+    <h1>🎉 TEMPAHAN BERJAYA</h1>
+
+    <p class="success-msg">
+      Terima kasih. Bayaran anda telah berjaya diproses.
+    </p>
+
+    <div class="receipt">
+      <p><strong>Nama:</strong> <span id="custName">Loading...</span></p>
+      <p><strong>ID Tempahan:</strong> <span id="bookingId">Loading...</span></p>
+      <p><strong>Tarikh:</strong> <span id="bookingDate">Loading...</span></p>
+      <p><strong>Status:</strong> <span class="paid">PAID</span></p>
+    </div>
+
+    <p class="note">
+      Sila screenshot skrin ini sebagai bukti pembayaran.
+    </p>
+
+    <a href="index.html" class="success-btn">
+      Kembali ke Laman Utama
+    </a>
   </div>
-
-  <p class="note">
-     Sila screenshot skrin ini sebagai bukti pembayaran.
-  </p>
-
-  <a href="index.html" class="success-btn">
-    Kembali ke Laman Utama
-  </a>
 </div>
+
+<script src="js/succcess.js"></script>
+</body>
+</html>
