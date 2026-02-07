@@ -73,6 +73,31 @@ body {
   background: rgba(0, 0, 0, 0.55);
 }
 
+/* ============================= */
+/* LOGO 3D ATAS */
+/* ============================= */
+.logo-wrapper {
+  position: absolute;
+  top: 16px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  z-index: 3;
+}
+
+.logo-3d {
+  width: 110px;
+  max-width: 40vw;
+  height: auto;
+
+  filter:
+    drop-shadow(0 4px 6px rgba(0,0,0,0.35))
+    drop-shadow(0 12px 22px rgba(0,0,0,0.35));
+
+  transform: perspective(800px) translateZ(15px);
+}
+
 /* CENTER SEMUA CONTENT */
 .hero-content {
   position: relative;
@@ -336,3 +361,4 @@ body {
   background: #7a0c16;
   color: #ffffff;
 }
+
