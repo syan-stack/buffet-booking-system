@@ -2,42 +2,43 @@
 <html lang="ms">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Tempahan Berjaya | Kopi Tenggek</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tempahan Berjaya</title>
 
-  <!-- GUNA STYLE SAMA -->
   <link rel="stylesheet" href="css/booking.css" />
   <link rel="stylesheet" href="css/success.css" />
 </head>
-
 <body>
-  <div class="hero">
-    <div class="overlay"></div>
 
-    <div class="success-container">
-      <h1>TEMPAHAN BERJAYA</h1>
+<div class="hero">
+  <div class="overlay"></div>
 
-      <p class="success-msg">
-        Terima kasih. Bayaran anda telah berjaya diproses.
+  <div class="success-container">
+    <h1>TEMPAHAN BERJAYA</h1>
+
+    <p class="success-msg">
+      Terima kasih. Bayaran anda telah berjaya diproses.
+    </p>
+
+    <div class="receipt-box">
+      <p><strong>Nama:</strong> <span id="receipt-name">-</span></p>
+      <p><strong>ID Tempahan:</strong> <span id="receipt-id">-</span></p>
+      <p><strong>Tarikh:</strong> <span id="receipt-date">-</span></p>
+      <p><strong>Status:</strong>
+        <span id="receipt-status" class="paid">PAID</span>
       </p>
-
-      <div class="receipt-box">
-        <p><strong>Nama:</strong> <span id="r-name">-</span></p>
-        <p><strong>ID Tempahan:</strong> <span id="r-id">-</span></p>
-        <p><strong>Tarikh:</strong> <span id="r-date">-</span></p>
-        <p><strong>Status:</strong> <span class="paid">PAID</span></p>
-      </div>
-
-      <p class="note">
-        Sila screenshot skrin ini sebagai bukti pembayaran.
-      </p>
-
-      <a href="index.html" class="success-btn">
-        Kembali ke Laman Utama
-      </a>
     </div>
-  </div>
 
-  <script src="js/success.js"></script>
+    <p class="note">
+      Sila screenshot skrin ini sebagai bukti pembayaran.
+    </p>
+
+    <a href="index.html" class="success-btn">
+      Kembali ke Laman Utama
+    </a>
+  </div>
+</div>
+
+<script src="js/success.js"></script>
 </body>
 </html>
