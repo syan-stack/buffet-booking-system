@@ -4,7 +4,7 @@ const pool = require('../config/db');
 
 const router = express.Router();
 
-// ⭐ TAMBAHAN: Caj transaksi Billplz (SELAMAT)
+// ⭐ Caj transaksi Billplz
 const TRANSACTION_FEE = 1.60;
 
 /**
@@ -31,18 +31,17 @@ router.post('/billplz', async (req, res) => {
 
     const booking = result.rows[0];
 
-    // 🔑 Jika bill sudah wujud → reuse
+    // 🔁 Jika bill sudah wujud → guna semula
     if (booking.bill_id) {
       return res.json({
         payment_url: `https://www.billplz.com/bills/${booking.bill_id}`
       });
     }
 
-    // ⭐ TAMBAHAN: jumlah sebenar (buffet + caj transaksi)
     const finalAmount =
       Number(booking.total_amount) + TRANSACTION_FEE;
 
-    // 🧾 Cipta bill baru (sekali sahaja)
+    // 🔥 CREATE BILLPLZ BILL
     const billRes = await axios.post(
       `${process.env.BILLPLZ_BASE_URL}/bills`,
       {
@@ -51,11 +50,13 @@ router.post('/billplz', async (req, res) => {
         email: booking.email,
         name: booking.customer_name,
 
-        // ⭐ JUMLAH AKHIR
         amount: Math.round(finalAmount * 100),
 
+        // ✅ CALLBACK (server ↔ Billplz)
         callback_url: `${process.env.BASE_URL}/api/payment/callback`,
-        redirect_url: `${process.env.FRONTEND_URL}/payment-processing.html`
+
+        // ✅ REDIRECT (Billplz → Frontend) 🔥 FIX UTAMA
+        redirect_url: `${process.env.FRONTEND_URL}/success.html?booking_id=${booking.id}`
       },
       {
         headers: { 'Content-Type': 'application/json' },
@@ -66,7 +67,7 @@ router.post('/billplz', async (req, res) => {
       }
     );
 
-    // Simpan bill_id
+    // 💾 Simpan bill_id
     await pool.query(
       'UPDATE bookings SET bill_id = $1 WHERE id = $2',
       [billRes.data.id, booking_id]
@@ -82,9 +83,8 @@ router.post('/billplz', async (req, res) => {
 
 /**
  * =====================================================
- * BILLPLZ CALLBACK (BEST-EFFORT)
+ * BILLPLZ CALLBACK
  * =====================================================
- * Callback hanya set PAID (jika berjaya)
  */
 router.post('/callback', async (req, res) => {
   try {
@@ -106,7 +106,7 @@ router.post('/callback', async (req, res) => {
 
 /**
  * =====================================================
- * VERIFY PAYMENT STATUS (SOURCE OF TRUTH)
+ * VERIFY PAYMENT STATUS
  * =====================================================
  */
 router.get('/verify/:bookingId', async (req, res) => {
@@ -128,7 +128,6 @@ router.get('/verify/:bookingId', async (req, res) => {
       return res.json({ status: 'FAILED' });
     }
 
-    // 🔥 Tanya terus Billplz
     const billRes = await axios.get(
       `${process.env.BILLPLZ_BASE_URL}/bills/${booking.bill_id}`,
       {
