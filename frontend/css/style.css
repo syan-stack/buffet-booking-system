@@ -84,26 +84,45 @@ body {
   margin-bottom: 6px; /* rapat dengan teks */
 }
 
+/* ===============================
+   LOGO DI ATAS (FIX POSITION)
+================================ */
+
+.logo-top {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+}
+
 /* LOGO 3D */
 .logo-3d {
-  width: 140px; /* BESAR SESUAI PHONE */
-  transform: perspective(800px) rotateX(8deg);
+  width: 150px;
   filter:
-    drop-shadow(0 10px 0 rgba(0,0,0,0.25))
-    drop-shadow(0 18px 20px rgba(0,0,0,0.35));
-  transition: transform 0.3s ease;
+    drop-shadow(0 6px 0 rgba(0,0,0,0.25))
+    drop-shadow(0 14px 20px rgba(0,0,0,0.35));
+  transform: perspective(800px) rotateX(6deg);
 }
 
-/* Hover / touch effect */
-.logo-3d:hover {
-  transform: perspective(800px) rotateX(0deg) translateY(-4px);
-}
-
-/* Mobile fine-tune */
+/* MOBILE TWEAK */
 @media (max-width: 768px) {
-  .logo-3d {
-    width: 150px; /* LOGO LEBIH IMPACT */
+  .logo-top {
+    top: 14px;
   }
+
+  .logo-3d {
+    width: 135px;
+  }
+}
+
+/* TAGLINE KECIL */
+.tagline {
+  font-size: 15px;
+  letter-spacing: 2px;
+  margin-bottom: 18px;
+  color: #fff;
+  opacity: 0.9;
 }
 
 
