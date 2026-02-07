@@ -101,7 +101,7 @@ body {
 
 /* LOGO 3D */
 .logo-3d {
-  width: 200px;
+  width: 400px;
   height: auto;
 
   display: block;
@@ -117,7 +117,7 @@ body {
 /* MOBILE */
 @media (max-width: 768px) {
   .logo-3d {
-    width: 130px;
+    width: 400px;
   }
 
   .logo-top {
