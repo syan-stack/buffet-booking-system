@@ -3,8 +3,6 @@ const axios = require('axios');
 const pool = require('../config/db');
 
 const router = express.Router();
-
-// ⭐ Caj transaksi Billplz
 const TRANSACTION_FEE = 1.60;
 
 /**
@@ -31,7 +29,6 @@ router.post('/billplz', async (req, res) => {
 
     const booking = result.rows[0];
 
-    // 🔁 Jika bill sudah wujud → guna semula
     if (booking.bill_id) {
       return res.json({
         payment_url: `https://www.billplz.com/bills/${booking.bill_id}`
@@ -71,7 +68,7 @@ router.post('/billplz', async (req, res) => {
     res.json({ payment_url: billRes.data.url });
 
   } catch (err) {
-    console.error('BILLPLZ ERROR:', err.response?.data || err.message);
+    console.error('BILLPLZ ERROR:', err.message);
     res.status(500).json({ error: 'Gagal cipta bill' });
   }
 });
@@ -79,18 +76,15 @@ router.post('/billplz', async (req, res) => {
 
 /**
  * =====================================================
- * BILLPLZ CALLBACK (🔥 FINAL FIX VERSION)
+ * CALLBACK (TIDAK BERGANTUNG 100%)
  * =====================================================
  */
 router.post('/callback', async (req, res) => {
   try {
     const { bill_id } = req.body;
 
-    if (!bill_id) {
-      return res.send('OK');
-    }
+    if (!bill_id) return res.send('OK');
 
-    // 🔥 VERIFY DIRECT DENGAN BILLPLZ (lebih selamat)
     const billRes = await axios.get(
       `${process.env.BILLPLZ_BASE_URL}/bills/${bill_id}`,
       {
@@ -112,14 +106,14 @@ router.post('/callback', async (req, res) => {
 
   } catch (err) {
     console.error('CALLBACK ERROR:', err.message);
-    res.send('OK'); // penting supaya Billplz tak retry banyak kali
+    res.send('OK');
   }
 });
 
 
 /**
  * =====================================================
- * VERIFY PAYMENT STATUS
+ * VERIFY (🔥 SOURCE OF TRUTH)
  * =====================================================
  */
 router.get('/verify/:bookingId', async (req, res) => {
@@ -152,18 +146,20 @@ router.get('/verify/:bookingId', async (req, res) => {
     );
 
     if (billRes.data.paid === true) {
+
       await pool.query(
         `UPDATE bookings SET payment_status = 'PAID' WHERE id = $1`,
         [bookingId]
       );
+
       return res.json({ status: 'PAID' });
     }
 
     return res.json({ status: 'FAILED' });
 
   } catch (err) {
-    console.error('VERIFY ERROR:', err.response?.data || err.message);
-    res.status(500).json({ status: 'ERROR' });
+    console.error('VERIFY ERROR:', err.message);
+    return res.json({ status: 'FAILED' });
   }
 });
 
