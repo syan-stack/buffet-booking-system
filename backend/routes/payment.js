@@ -41,7 +41,6 @@ router.post('/billplz', async (req, res) => {
     const finalAmount =
       Number(booking.total_amount) + TRANSACTION_FEE;
 
-    // 🔥 CREATE BILLPLZ BILL
     const billRes = await axios.post(
       `${process.env.BILLPLZ_BASE_URL}/bills`,
       {
@@ -49,13 +48,10 @@ router.post('/billplz', async (req, res) => {
         description: `Tempahan Buffet - ${booking.customer_name}`,
         email: booking.email,
         name: booking.customer_name,
-
         amount: Math.round(finalAmount * 100),
 
-        // ✅ CALLBACK (server ↔ Billplz)
         callback_url: `${process.env.BASE_URL}/api/payment/callback`,
 
-        // ✅ REDIRECT (Billplz → Frontend) 🔥 FIX UTAMA
         redirect_url: `${process.env.FRONTEND_URL}/success.html?booking_id=${booking.id}`
       },
       {
@@ -67,7 +63,6 @@ router.post('/billplz', async (req, res) => {
       }
     );
 
-    // 💾 Simpan bill_id
     await pool.query(
       'UPDATE bookings SET bill_id = $1 WHERE id = $2',
       [billRes.data.id, booking_id]
@@ -81,16 +76,32 @@ router.post('/billplz', async (req, res) => {
   }
 });
 
+
 /**
  * =====================================================
- * BILLPLZ CALLBACK
+ * BILLPLZ CALLBACK (🔥 FINAL FIX VERSION)
  * =====================================================
  */
 router.post('/callback', async (req, res) => {
   try {
-    const { bill_id, paid } = req.body;
+    const { bill_id } = req.body;
 
-    if (paid === 'true') {
+    if (!bill_id) {
+      return res.send('OK');
+    }
+
+    // 🔥 VERIFY DIRECT DENGAN BILLPLZ (lebih selamat)
+    const billRes = await axios.get(
+      `${process.env.BILLPLZ_BASE_URL}/bills/${bill_id}`,
+      {
+        auth: {
+          username: process.env.BILLPLZ_API_KEY,
+          password: ''
+        }
+      }
+    );
+
+    if (billRes.data.paid === true) {
       await pool.query(
         `UPDATE bookings SET payment_status = 'PAID' WHERE bill_id = $1`,
         [bill_id]
@@ -98,11 +109,13 @@ router.post('/callback', async (req, res) => {
     }
 
     res.send('OK');
+
   } catch (err) {
-    console.error('CALLBACK ERROR:', err);
-    res.send('ERROR');
+    console.error('CALLBACK ERROR:', err.message);
+    res.send('OK'); // penting supaya Billplz tak retry banyak kali
   }
 });
+
 
 /**
  * =====================================================
