@@ -49,7 +49,8 @@ router.post('/billplz', async (req, res) => {
 
         callback_url: `${process.env.BASE_URL}/api/payment/callback`,
 
-        redirect_url: `${process.env.FRONTEND_URL}/success.html?booking_id=${booking.id}`
+        rredirect_url: `${process.env.FRONTEND_URL}/payment-processing.html?booking_id=${booking.id}`
+
       },
       {
         headers: { 'Content-Type': 'application/json' },
