@@ -29,7 +29,7 @@ router.post('/billplz', async (req, res) => {
 
     const booking = result.rows[0];
 
-    // 🔁 Guna bill sedia ada jika ada
+    // 🔁 Jika bill sudah ada → guna semula
     if (booking.bill_id) {
       return res.json({
         payment_url: `https://www.billplz.com/bills/${booking.bill_id}`
@@ -51,8 +51,8 @@ router.post('/billplz', async (req, res) => {
         // ✅ CALLBACK UNTUK UPDATE DB
         callback_url: `${process.env.BASE_URL}/api/payment/callback`,
 
-        // ✅ EJAAN BETUL (INI FIX UTAMA)
-        redirect_url: `${process.env.FRONTEND_URL}/payment-processing.html?booking_id=${booking.id}`
+        // ✅ REDIRECT KE BACKEND (STABIL & SECURE)
+        redirect_url: `${process.env.BASE_URL}/api/payment/return?booking_id=${booking.id}`
       },
       {
         headers: { 'Content-Type': 'application/json' },
@@ -105,7 +105,67 @@ router.post('/callback', async (req, res) => {
 
 /**
  * =====================================================
- * VERIFY (OPTIONAL - BOLEH KEKAL)
+ * RETURN FROM BILLPLZ (SOURCE OF TRUTH)
+ * =====================================================
+ */
+router.get('/return', async (req, res) => {
+  try {
+    const bookingId = req.query.booking_id;
+
+    if (!bookingId) {
+      return res.redirect(`${process.env.FRONTEND_URL}/payment-failed.html`);
+    }
+
+    const result = await pool.query(
+      'SELECT * FROM bookings WHERE id = $1',
+      [bookingId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.redirect(`${process.env.FRONTEND_URL}/payment-failed.html`);
+    }
+
+    const booking = result.rows[0];
+
+    if (!booking.bill_id) {
+      return res.redirect(`${process.env.FRONTEND_URL}/payment-failed.html`);
+    }
+
+    // 🔥 VERIFY DIRECT DENGAN BILLPLZ
+    const billRes = await axios.get(
+      `${process.env.BILLPLZ_BASE_URL}/bills/${booking.bill_id}`,
+      {
+        auth: {
+          username: process.env.BILLPLZ_API_KEY,
+          password: ''
+        }
+      }
+    );
+
+    if (billRes.data.paid === true) {
+
+      await pool.query(
+        `UPDATE bookings SET payment_status = 'PAID' WHERE id = $1`,
+        [bookingId]
+      );
+
+      return res.redirect(
+        `${process.env.FRONTEND_URL}/success.html?booking_id=${bookingId}`
+      );
+    }
+
+    return res.redirect(`${process.env.FRONTEND_URL}/payment-failed.html`);
+
+  } catch (err) {
+    console.error('RETURN ERROR:', err.message);
+    return res.redirect(`${process.env.FRONTEND_URL}/payment-failed.html`);
+  }
+});
+
+
+/**
+ * =====================================================
+ * VERIFY (OPTIONAL API)
  * =====================================================
  */
 router.get('/verify/:bookingId', async (req, res) => {
@@ -142,7 +202,6 @@ router.get('/verify/:bookingId', async (req, res) => {
         `UPDATE bookings SET payment_status = 'PAID' WHERE id = $1`,
         [bookingId]
       );
-
       return res.json({ status: 'PAID' });
     }
 
