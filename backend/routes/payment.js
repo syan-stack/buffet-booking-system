@@ -29,6 +29,7 @@ router.post('/billplz', async (req, res) => {
 
     const booking = result.rows[0];
 
+    // 🔁 Guna bill sedia ada jika ada
     if (booking.bill_id) {
       return res.json({
         payment_url: `https://www.billplz.com/bills/${booking.bill_id}`
@@ -47,10 +48,11 @@ router.post('/billplz', async (req, res) => {
         name: booking.customer_name,
         amount: Math.round(finalAmount * 100),
 
+        // ✅ CALLBACK UNTUK UPDATE DB
         callback_url: `${process.env.BASE_URL}/api/payment/callback`,
 
-        rredirect_url: `${process.env.FRONTEND_URL}/payment-processing.html?booking_id=${booking.id}`
-
+        // ✅ EJAAN BETUL (INI FIX UTAMA)
+        redirect_url: `${process.env.FRONTEND_URL}/payment-processing.html?booking_id=${booking.id}`
       },
       {
         headers: { 'Content-Type': 'application/json' },
@@ -61,6 +63,7 @@ router.post('/billplz', async (req, res) => {
       }
     );
 
+    // 💾 Simpan bill_id
     await pool.query(
       'UPDATE bookings SET bill_id = $1 WHERE id = $2',
       [billRes.data.id, booking_id]
@@ -69,7 +72,7 @@ router.post('/billplz', async (req, res) => {
     res.json({ payment_url: billRes.data.url });
 
   } catch (err) {
-    console.error('BILLPLZ ERROR:', err.message);
+    console.error('BILLPLZ ERROR:', err.response?.data || err.message);
     res.status(500).json({ error: 'Gagal cipta bill' });
   }
 });
@@ -77,26 +80,14 @@ router.post('/billplz', async (req, res) => {
 
 /**
  * =====================================================
- * CALLBACK (TIDAK BERGANTUNG 100%)
+ * CALLBACK
  * =====================================================
  */
 router.post('/callback', async (req, res) => {
   try {
-    const { bill_id } = req.body;
+    const { bill_id, paid } = req.body;
 
-    if (!bill_id) return res.send('OK');
-
-    const billRes = await axios.get(
-      `${process.env.BILLPLZ_BASE_URL}/bills/${bill_id}`,
-      {
-        auth: {
-          username: process.env.BILLPLZ_API_KEY,
-          password: ''
-        }
-      }
-    );
-
-    if (billRes.data.paid === true) {
+    if (paid === 'true') {
       await pool.query(
         `UPDATE bookings SET payment_status = 'PAID' WHERE bill_id = $1`,
         [bill_id]
@@ -114,7 +105,7 @@ router.post('/callback', async (req, res) => {
 
 /**
  * =====================================================
- * VERIFY (🔥 SOURCE OF TRUTH)
+ * VERIFY (OPTIONAL - BOLEH KEKAL)
  * =====================================================
  */
 router.get('/verify/:bookingId', async (req, res) => {
@@ -147,7 +138,6 @@ router.get('/verify/:bookingId', async (req, res) => {
     );
 
     if (billRes.data.paid === true) {
-
       await pool.query(
         `UPDATE bookings SET payment_status = 'PAID' WHERE id = $1`,
         [bookingId]

@@ -19,7 +19,7 @@ router.post('/', async (req, res) => {
     const result = await pool.query(
       `INSERT INTO bookings
       (booking_date, adult, child, total_pax, total_amount, email, customer_name, phone, payment_status)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,'PAID')
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,'PENDING')
       RETURNING *`,
       [booking_date, adult, child, total_pax, total_amount, email, customer_name, phone]
     );
@@ -58,6 +58,5 @@ router.get('/:id', async (req, res) => {
 });
 
 module.exports = router;
-
 
 
