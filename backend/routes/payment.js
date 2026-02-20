@@ -52,7 +52,7 @@ router.post('/billplz', async (req, res) => {
         callback_url: `${process.env.BASE_URL}/api/payment/callback`,
 
         // ✅ REDIRECT KE BACKEND (STABIL & SECURE)
-        redirect_url: `${process.env.BASE_URL}/api/payment/return?booking_id=${booking.id}`
+        redirect_url: `${process.env.FRONTEND_URL}/payment-processing.html?booking_id=${booking.id}`
       },
       {
         headers: { 'Content-Type': 'application/json' },
