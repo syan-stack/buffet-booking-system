@@ -14,7 +14,7 @@ router.post('/', async (req, res) => {
     }
 
     const total_pax = Number(adult) + Number(child);
-    const total_amount = adult * 45.0 + child * 39.9;
+    const total_amount = adult * 49.9 + child * 39.9;
 
     const result = await pool.query(
       `INSERT INTO bookings
