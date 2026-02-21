@@ -13,6 +13,21 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Maklumat tidak lengkap' });
     }
 
+     // 🚫 BLOCK BOOKING HARI INI
+    const today = new Date();
+    today.setHours(0,0,0,0);
+
+    const selectedDate = new Date(booking_date);
+    selectedDate.setHours(0,0,0,0);
+
+    if (selectedDate.getTime() === today.getTime()) {
+      return res.status(400).json({
+        error: "Tempahan untuk hari ini telah ditutup."
+      });
+    }
+
+
+
     const total_pax = Number(adult) + Number(child);
     const total_amount = adult * 49.9 + child * 39.9;
 
