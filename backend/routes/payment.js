@@ -8,7 +8,7 @@ const TRANSACTION_FEE = 1.60;
 
 /**
  * =====================================================
- * CREATE BILLPLZ BILL
+ * CREATE BILL
  * =====================================================
  */
 router.post('/billplz', async (req, res) => {
@@ -30,12 +30,10 @@ router.post('/billplz', async (req, res) => {
 
     const booking = result.rows[0];
 
-    // 🚫 Jangan create bill kalau dah PAID
     if (booking.payment_status === 'PAID') {
       return res.status(400).json({ error: 'Booking sudah dibayar' });
     }
 
-    // 🔁 Reuse existing bill
     if (booking.bill_id) {
       return res.json({
         payment_url: `https://www.billplz.com/bills/${booking.bill_id}`
@@ -72,7 +70,7 @@ router.post('/billplz', async (req, res) => {
     res.json({ payment_url: billRes.data.url });
 
   } catch (err) {
-    console.error('BILLPLZ ERROR:', err.response?.data || err.message);
+    console.error("CREATE BILL ERROR:", err.response?.data || err.message);
     res.status(500).json({ error: 'Gagal cipta bill' });
   }
 });
@@ -80,72 +78,18 @@ router.post('/billplz', async (req, res) => {
 
 /**
  * =====================================================
- * CALLBACK (WEBHOOK FROM BILLPLZ - SECURE)
- * =====================================================
- */
-router.post('/callback', async (req, res) => {
-  try {
-    const signature = req.headers['x-signature'];
-    const rawBody = JSON.stringify(req.body);
-
-    if (!signature) {
-      return res.status(400).send('No signature');
-    }
-
-    const expected = crypto
-      .createHmac('sha256', process.env.BILLPLZ_X_SIGNATURE_KEY)
-      .update(rawBody)
-      .digest('hex');
-
-    if (signature !== expected) {
-      return res.status(400).send('Invalid signature');
-    }
-
-    const { id: bill_id, paid } = req.body;
-
-    if (paid === true || paid === "true") {
-      await pool.query(
-        `UPDATE bookings
-         SET payment_status = 'PAID'
-         WHERE bill_id = $1 AND payment_status != 'PAID'`,
-        [bill_id]
-      );
-    }
-
-    res.send('OK');
-
-  } catch (err) {
-    console.error('CALLBACK ERROR:', err.message);
-    res.send('OK');
-  }
-});
-
-
-/**
- * =====================================================
- * RETURN FROM BILLPLZ (SOURCE OF TRUTH)
+ * RETURN (SOURCE OF TRUTH)
  * =====================================================
  */
 router.get('/return', async (req, res) => {
   try {
-    const billId = req.query.billplz?.id;
+    const billId = req.query['billplz[id]'];
 
     if (!billId) {
       return res.redirect(`${process.env.FRONTEND_URL}/payment-failed.html`);
     }
 
-    const result = await pool.query(
-      'SELECT * FROM bookings WHERE bill_id = $1',
-      [billId]
-    );
-
-    if (result.rows.length === 0) {
-      return res.redirect(`${process.env.FRONTEND_URL}/payment-failed.html`);
-    }
-
-    const booking = result.rows[0];
-
-    // 🔥 Verify direct dengan Billplz
+    // Verify directly with Billplz
     const billRes = await axios.get(
       `${process.env.BILLPLZ_BASE_URL}/bills/${billId}`,
       {
@@ -161,24 +105,30 @@ router.get('/return', async (req, res) => {
       billRes.data.paid === "true" ||
       Number(billRes.data.paid_amount) > 0;
 
-    if (isPaid) {
-
-      await pool.query(
-        `UPDATE bookings
-         SET payment_status = 'PAID'
-         WHERE id = $1`,
-        [booking.id]
-      );
-
-      return res.redirect(
-        `${process.env.FRONTEND_URL}/success.html?booking_id=${booking.id}`
-      );
+    if (!isPaid) {
+      return res.redirect(`${process.env.FRONTEND_URL}/payment-failed.html`);
     }
 
-    return res.redirect(`${process.env.FRONTEND_URL}/payment-failed.html`);
+    const update = await pool.query(
+      `UPDATE bookings
+       SET payment_status = 'PAID'
+       WHERE bill_id = $1
+       RETURNING id`,
+      [billId]
+    );
+
+    if (update.rows.length === 0) {
+      return res.redirect(`${process.env.FRONTEND_URL}/payment-failed.html`);
+    }
+
+    const bookingId = update.rows[0].id;
+
+    return res.redirect(
+      `${process.env.FRONTEND_URL}/success.html?booking_id=${bookingId}`
+    );
 
   } catch (err) {
-    console.error('RETURN ERROR:', err.message);
+    console.error("RETURN ERROR:", err.response?.data || err.message);
     return res.redirect(`${process.env.FRONTEND_URL}/payment-failed.html`);
   }
 });
@@ -186,56 +136,27 @@ router.get('/return', async (req, res) => {
 
 /**
  * =====================================================
- * VERIFY API (OPTIONAL)
+ * CALLBACK (OPTIONAL - NOT REQUIRED FOR SUCCESS FLOW)
  * =====================================================
  */
-router.get('/verify/:bookingId', async (req, res) => {
+router.post('/callback', async (req, res) => {
   try {
-    const { bookingId } = req.params;
+    const { id: bill_id, paid } = req.body;
 
-    const result = await pool.query(
-      'SELECT * FROM bookings WHERE id = $1',
-      [bookingId]
-    );
-
-    if (result.rows.length === 0) {
-      return res.json({ status: 'FAILED' });
-    }
-
-    const booking = result.rows[0];
-
-    if (!booking.bill_id) {
-      return res.json({ status: 'FAILED' });
-    }
-
-    const billRes = await axios.get(
-      `${process.env.BILLPLZ_BASE_URL}/bills/${booking.bill_id}`,
-      {
-        auth: {
-          username: process.env.BILLPLZ_API_KEY,
-          password: ''
-        }
-      }
-    );
-
-    const isPaid =
-      billRes.data.paid === true ||
-      billRes.data.paid === "true" ||
-      Number(billRes.data.paid_amount) > 0;
-
-    if (isPaid) {
+    if (paid === true || paid === "true") {
       await pool.query(
-        `UPDATE bookings SET payment_status = 'PAID' WHERE id = $1`,
-        [bookingId]
+        `UPDATE bookings
+         SET payment_status = 'PAID'
+         WHERE bill_id = $1`,
+        [bill_id]
       );
-      return res.json({ status: 'PAID' });
     }
 
-    return res.json({ status: 'FAILED' });
+    res.send('OK');
 
   } catch (err) {
-    console.error('VERIFY ERROR:', err.message);
-    return res.json({ status: 'FAILED' });
+    console.error("CALLBACK ERROR:", err.message);
+    res.send('OK');
   }
 });
 
