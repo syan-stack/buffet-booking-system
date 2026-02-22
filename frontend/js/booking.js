@@ -22,12 +22,12 @@ document.getElementById('payBtn').addEventListener('click', submitBooking);
 
 async function submitBooking() {
   const payload = {
-    customer_name: document.getElementById('customer_name').value,
-    phone: document.getElementById('phone').value,
+    customer_name: document.getElementById('customer_name').value.trim(),
+    phone: document.getElementById('phone').value.trim(),
     booking_date: document.getElementById('booking_date').value,
-    adult: Number(adultInput.value),
-    child: Number(childInput.value),
-    email: document.getElementById('email').value
+    adult: Number(adultInput.value) || 0,
+    child: Number(childInput.value) || 0,
+    email: document.getElementById('email').value.trim()
   };
 
   try {
@@ -37,17 +37,20 @@ async function submitBooking() {
       body: JSON.stringify(payload)
     });
 
-    if (!res.ok) throw new Error('Booking failed');
-
     const data = await res.json();
 
-    // ✅ INI FIX MUKTAMAD
-    localStorage.setItem('booking_id', data.id);
+    if (!res.ok) {
+      alert(data.error || "Gagal buat tempahan");
+      return;
+    }
+
+    // 🔥 FIX SEBENAR
+    localStorage.setItem('booking_id', data.booking_id);
 
     window.location.href = 'payment.html';
 
   } catch (err) {
-    alert('Gagal buat tempahan');
     console.error(err);
+    alert('Server tidak dapat dihubungi');
   }
 }

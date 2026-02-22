@@ -1,6 +1,4 @@
 const API_BASE = "https://buffet-booking-system.onrender.com";
-
-// ⭐ TAMBAHAN: Caj transaksi Billplz
 const TRANSACTION_FEE = 1.60;
 
 const bookingId = localStorage.getItem('booking_id');
@@ -8,6 +6,7 @@ const bookingId = localStorage.getItem('booking_id');
 if (!bookingId) {
   alert('Booking tidak dijumpai. Sila buat tempahan semula.');
   window.location.href = 'booking.html';
+  throw new Error("Booking ID missing");
 }
 
 const payBtn = document.getElementById('payBtn');
@@ -16,9 +15,12 @@ async function loadBooking() {
   try {
     const res = await fetch(`${API_BASE}/api/bookings/${bookingId}`);
 
-    if (!res.ok) throw new Error('Gagal ambil data booking');
-
     const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.error || "Gagal ambil data booking");
+      return;
+    }
 
     const buffetAmount = Number(data.total_amount);
     const finalAmount = buffetAmount + TRANSACTION_FEE;
@@ -35,7 +37,7 @@ async function loadBooking() {
 
   } catch (err) {
     console.error(err);
-    alert('Gagal papar maklumat tempahan.');
+    alert('Server tidak dapat dihubungi.');
   }
 }
 
@@ -46,23 +48,21 @@ payBtn.addEventListener('click', async () => {
   payBtn.textContent = 'Menghubungkan ke Billplz...';
 
   try {
-    // 🔥 FIX MUKTAMAD: ENDPOINT IKUT BACKEND (/billplz)
-    const res = await fetch(
-      `${API_BASE}/api/payment/billplz`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          booking_id: bookingId
-        })
-      }
-    );
-
-    if (!res.ok) throw new Error('Gagal cipta bil');
+    const res = await fetch(`${API_BASE}/api/payment/billplz`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ booking_id: bookingId })
+    });
 
     const data = await res.json();
 
-    // 🔥 REDIRECT TERUS KE BILLPLZ
+    if (!res.ok) {
+      alert(data.error || "Gagal cipta bil");
+      payBtn.disabled = false;
+      payBtn.textContent = 'SAHKAN BAYARAN';
+      return;
+    }
+
     window.location.href = data.payment_url;
 
   } catch (err) {
