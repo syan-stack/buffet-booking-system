@@ -6,7 +6,6 @@ const pool = require('../config/db');
 const router = express.Router();
 const TRANSACTION_FEE = 1.60;
 
-
 /**
  * =====================================================
  * CREATE BILLPLZ BILL
@@ -81,7 +80,7 @@ router.post('/billplz', async (req, res) => {
 
 /**
  * =====================================================
- * CALLBACK (SECURE WEBHOOK)
+ * CALLBACK (WEBHOOK FROM BILLPLZ - SECURE)
  * =====================================================
  */
 router.post('/callback', async (req, res) => {
@@ -104,7 +103,7 @@ router.post('/callback', async (req, res) => {
 
     const { id: bill_id, paid } = req.body;
 
-    if (paid === true) {
+    if (paid === true || paid === "true") {
       await pool.query(
         `UPDATE bookings
          SET payment_status = 'PAID'
@@ -146,7 +145,7 @@ router.get('/return', async (req, res) => {
 
     const booking = result.rows[0];
 
-    // 🔥 Verify direct with Billplz
+    // 🔥 Verify direct dengan Billplz
     const billRes = await axios.get(
       `${process.env.BILLPLZ_BASE_URL}/bills/${billId}`,
       {
@@ -157,17 +156,22 @@ router.get('/return', async (req, res) => {
       }
     );
 
-    if (billRes.data.paid === true) {
+    const isPaid =
+      billRes.data.paid === true ||
+      billRes.data.paid === "true" ||
+      Number(billRes.data.paid_amount) > 0;
 
-      if (booking.payment_status !== 'PAID') {
-        await pool.query(
-          `UPDATE bookings SET payment_status = 'PAID' WHERE id = $1`,
-          [booking.id]
-        );
-      }
+    if (isPaid) {
+
+      await pool.query(
+        `UPDATE bookings
+         SET payment_status = 'PAID'
+         WHERE id = $1`,
+        [booking.id]
+      );
 
       return res.redirect(
-        `${process.env.FRONTEND_URL}/success.html?booking_id=${booking.id}&date=${booking.booking_date}&name=${encodeURIComponent(booking.customer_name)}`
+        `${process.env.FRONTEND_URL}/success.html?booking_id=${booking.id}`
       );
     }
 
@@ -182,7 +186,7 @@ router.get('/return', async (req, res) => {
 
 /**
  * =====================================================
- * VERIFY API
+ * VERIFY API (OPTIONAL)
  * =====================================================
  */
 router.get('/verify/:bookingId', async (req, res) => {
@@ -214,7 +218,12 @@ router.get('/verify/:bookingId', async (req, res) => {
       }
     );
 
-    if (billRes.data.paid === true) {
+    const isPaid =
+      billRes.data.paid === true ||
+      billRes.data.paid === "true" ||
+      Number(billRes.data.paid_amount) > 0;
+
+    if (isPaid) {
       await pool.query(
         `UPDATE bookings SET payment_status = 'PAID' WHERE id = $1`,
         [bookingId]
