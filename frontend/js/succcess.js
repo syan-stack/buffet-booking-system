@@ -2,7 +2,8 @@ const params = new URLSearchParams(window.location.search);
 const bookingId = params.get("booking_id");
 
 if (!bookingId) {
-  window.location.href = "payment-failed.html";
+  document.body.innerHTML = "<h2>Booking ID tidak dijumpai</h2>";
+  throw new Error("No booking id");
 }
 
 async function loadBooking() {
@@ -10,8 +11,6 @@ async function loadBooking() {
     const res = await fetch(
       `https://buffet-booking-system.onrender.com/api/bookings/${bookingId}`
     );
-
-    if (!res.ok) throw new Error();
 
     const booking = await res.json();
 
@@ -24,8 +23,9 @@ async function loadBooking() {
     document.getElementById("receipt-amount").textContent =
       booking.total_amount;
 
-  } catch {
-    window.location.href = "payment-failed.html";
+  } catch (err) {
+    console.error("SUCCESS PAGE ERROR:", err);
+    document.body.innerHTML = "<h2>Tempahan berjaya tetapi gagal papar maklumat.</h2>";
   }
 }
 
