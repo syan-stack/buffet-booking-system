@@ -1,39 +1,38 @@
-const API_BASE = "https://api.kopitenggeklarkin.com"; // guna domain primary Render kau
+const API_BASE = "https://api.kopitenggeklarkin.com";
 
 const params = new URLSearchParams(window.location.search);
 const bookingId = params.get("booking_id");
 
 if (!bookingId) {
   document.body.innerHTML =
-    "<h2>Booking ID tidak dijumpai dalam URL.</h2>";
+    "<h2>Booking ID tidak dijumpai.</h2>";
   throw new Error("Missing booking_id");
 }
 
 async function loadBooking() {
   try {
-    const res = await fetch(`${API_BASE}/api/bookings/${bookingId}`);
+    const response = await fetch(
+      `${API_BASE}/api/bookings/${bookingId}`
+    );
 
-    if (!res.ok) {
-      throw new Error("API response not OK");
+    if (!response.ok) {
+      throw new Error("API Error");
     }
 
-    const booking = await res.json();
+    const data = await response.json();
 
-    console.log("BOOKING DATA:", booking);
-
+    // 🔥 PASTIKAN ID MATCH DENGAN HTML
     document.getElementById("name").textContent =
-      booking.customer_name || "-";
+      data.customer_name;
 
     document.getElementById("bookingId").textContent =
-      booking.id || "-";
+      data.id;
 
     document.getElementById("date").textContent =
-      booking.booking_date
-        ? booking.booking_date.split("T")[0]
-        : "-";
+      data.booking_date.split("T")[0];
 
   } catch (err) {
-    console.error("FETCH ERROR:", err);
+    console.error("SUCCESS PAGE ERROR:", err);
     document.body.innerHTML =
       "<h2>Tempahan berjaya tetapi gagal papar maklumat.</h2>";
   }
