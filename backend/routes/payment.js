@@ -1,5 +1,6 @@
 const express = require('express');
 const axios = require('axios');
+const crypto = require('crypto');
 const pool = require('../config/db');
 
 const router = express.Router();
@@ -30,7 +31,12 @@ router.post('/billplz', async (req, res) => {
 
     const booking = result.rows[0];
 
-    // 🔁 Jika bill sudah ada → guna semula
+    // 🚫 Jangan create bill kalau dah PAID
+    if (booking.payment_status === 'PAID') {
+      return res.status(400).json({ error: 'Booking sudah dibayar' });
+    }
+
+    // 🔁 Reuse existing bill
     if (booking.bill_id) {
       return res.json({
         payment_url: `https://www.billplz.com/bills/${booking.bill_id}`
@@ -48,12 +54,10 @@ router.post('/billplz', async (req, res) => {
         email: booking.email,
         name: booking.customer_name,
         amount: Math.round(finalAmount * 100),
-
         callback_url: `${process.env.BASE_URL}/api/payment/callback`,
         redirect_url: `${process.env.BASE_URL}/api/payment/return`
       },
       {
-        headers: { 'Content-Type': 'application/json' },
         auth: {
           username: process.env.BILLPLZ_API_KEY,
           password: ''
@@ -61,7 +65,6 @@ router.post('/billplz', async (req, res) => {
       }
     );
 
-    // 💾 Simpan bill_id
     await pool.query(
       'UPDATE bookings SET bill_id = $1 WHERE id = $2',
       [billRes.data.id, booking_id]
@@ -78,14 +81,30 @@ router.post('/billplz', async (req, res) => {
 
 /**
  * =====================================================
- * CALLBACK (WEBHOOK FROM BILLPLZ)
+ * CALLBACK (SECURE WEBHOOK)
  * =====================================================
  */
 router.post('/callback', async (req, res) => {
   try {
-    const { bill_id, paid } = req.body;
+    const signature = req.headers['x-signature'];
+    const rawBody = JSON.stringify(req.body);
 
-    if (paid === 'true') {
+    if (!signature) {
+      return res.status(400).send('No signature');
+    }
+
+    const expected = crypto
+      .createHmac('sha256', process.env.BILLPLZ_X_SIGNATURE_KEY)
+      .update(rawBody)
+      .digest('hex');
+
+    if (signature !== expected) {
+      return res.status(400).send('Invalid signature');
+    }
+
+    const { id: bill_id, paid } = req.body;
+
+    if (paid === true) {
       await pool.query(
         `UPDATE bookings
          SET payment_status = 'PAID'
@@ -105,7 +124,7 @@ router.post('/callback', async (req, res) => {
 
 /**
  * =====================================================
- * RETURN FROM BILLPLZ (VERIFY WITH BILLPLZ API)
+ * RETURN FROM BILLPLZ (SOURCE OF TRUTH)
  * =====================================================
  */
 router.get('/return', async (req, res) => {
@@ -127,7 +146,7 @@ router.get('/return', async (req, res) => {
 
     const booking = result.rows[0];
 
-    // 🔥 VERIFY DIRECT WITH BILLPLZ
+    // 🔥 Verify direct with Billplz
     const billRes = await axios.get(
       `${process.env.BILLPLZ_BASE_URL}/bills/${billId}`,
       {
@@ -147,7 +166,6 @@ router.get('/return', async (req, res) => {
         );
       }
 
-      // 🚀 Redirect dengan maklumat penting
       return res.redirect(
         `${process.env.FRONTEND_URL}/success.html?booking_id=${booking.id}&date=${booking.booking_date}&name=${encodeURIComponent(booking.customer_name)}`
       );
@@ -164,7 +182,7 @@ router.get('/return', async (req, res) => {
 
 /**
  * =====================================================
- * VERIFY API (OPTIONAL CHECK)
+ * VERIFY API
  * =====================================================
  */
 router.get('/verify/:bookingId', async (req, res) => {
