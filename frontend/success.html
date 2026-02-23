@@ -4,33 +4,45 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Tempahan Berjaya</title>
-
-  <link rel="stylesheet" href="css/booking.css"/>
-  <link rel="stylesheet" href="css/success.css"/>
 </head>
 
-<body>
-  <div class="hero">
-    <div class="overlay"></div>
+<body style="font-family: Arial; text-align:center; padding:40px;">
 
-    <div class="success-container">
-      <h1>TEMPAHAN BERJAYA</h1>
-      <p>‼️ SILA SCREENSHOT BAHAGIAN INI SEBAGAI BUKTI TEMPAHAN ‼️</p>
+  <h1>TEMPAHAN BERJAYA</h1>
+  <p><strong>SILA SCREENSHOT SEBAGAI BUKTI</strong></p>
 
-      <div class="receipt-box">
-        <p><strong>Nama:</strong> <span id="name">-</span></p>
-        <p><strong>ID Tempahan:</strong> <span id="bookingId">-</span></p>
-        <p><strong>Tarikh:</strong> <span id="date">-</span></p>
-        <p><strong>Status:</strong> <span class="paid">PAID</span></p>
-      </div>
+  <p>Nama: <span id="name">-</span></p>
+  <p>ID Tempahan: <span id="bookingId">-</span></p>
+  <p>Tarikh: <span id="date">-</span></p>
+  <p>Status: <span style="color:green;">PAID</span></p>
 
-      <p class="note">TERIMA KASIH</p>
+<script>
+const API_BASE = "https://api.kopitenggeklarkin.com";
 
-      <a href="index.html" class="success-btn">Kembali ke Laman Utama</a>
-    </div>
-  </div>
+const params = new URLSearchParams(window.location.search);
+const bookingId = params.get("booking_id");
 
-  <!-- FILE NAME BETUL -->
-  <script src="js/success.js"></script>
+if (!bookingId) {
+  document.body.innerHTML = "<h2>Booking ID tidak dijumpai.</h2>";
+} else {
+  fetch(`${API_BASE}/api/bookings/${bookingId}`)
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("name").textContent =
+        data.customer_name;
+
+      document.getElementById("bookingId").textContent =
+        data.id;
+
+      document.getElementById("date").textContent =
+        data.booking_date.split("T")[0];
+    })
+    .catch(err => {
+      document.body.innerHTML =
+        "<h2>Tempahan berjaya tetapi gagal papar maklumat.</h2>";
+    });
+}
+</script>
+
 </body>
 </html>
