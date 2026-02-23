@@ -4,17 +4,116 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Tempahan Berjaya</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      height: 100vh;
+      background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+                  url('images/bg-pattern.jpg') no-repeat center center/cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .success-box {
+      background: #ffffff;
+      width: 100%;
+      max-width: 500px;
+      padding: 40px 30px;
+      border-radius: 15px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 15px;
+    }
+
+    .warning {
+      color: #e53935;
+      font-weight: bold;
+      margin-bottom: 25px;
+    }
+
+    .receipt {
+      text-align: left;
+      margin-top: 20px;
+      line-height: 1.8;
+      font-size: 18px;
+    }
+
+    .receipt strong {
+      display: inline-block;
+      width: 140px;
+    }
+
+    .paid {
+      color: #2ecc71;
+      font-weight: bold;
+    }
+
+    .btn-home {
+      margin-top: 30px;
+      display: inline-block;
+      padding: 12px 25px;
+      background: #000;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 8px;
+      transition: 0.3s;
+    }
+
+    .btn-home:hover {
+      background: #333;
+    }
+
+    /* Mobile */
+    @media(max-width: 480px){
+      .success-box {
+        padding: 30px 20px;
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+
+      .receipt {
+        font-size: 16px;
+      }
+
+      .receipt strong {
+        width: 110px;
+      }
+    }
+  </style>
 </head>
 
-<body style="font-family: Arial; text-align:center; padding:40px;">
+<body>
 
-  <h1>TEMPAHAN BERJAYA</h1>
-  <p><strong>SILA SCREENSHOT SEBAGAI BUKTI</strong></p>
+  <div class="success-box">
+    <h1>TEMPAHAN BERJAYA</h1>
+    <div class="warning">
+      ‼️ Sila screenshot sebagai bukti tempahan ‼️
+    </div>
 
-  <p>Nama: <span id="name">-</span></p>
-  <p>ID Tempahan: <span id="bookingId">-</span></p>
-  <p>Tarikh: <span id="date">-</span></p>
-  <p>Status: <span style="color:green;">PAID</span></p>
+    <div class="receipt">
+      <p><strong>Nama:</strong> <span id="name">-</span></p>
+      <p><strong>ID Tempahan:</strong> <span id="bookingId">-</span></p>
+      <p><strong>Tarikh:</strong> <span id="date">-</span></p>
+      <p><strong>Status:</strong> <span class="paid">PAID</span></p>
+    </div>
+
+    <a href="index.html" class="btn-home">Kembali ke Laman Utama</a>
+  </div>
 
 <script>
 const API_BASE = "https://api.kopitenggeklarkin.com";
@@ -23,7 +122,7 @@ const params = new URLSearchParams(window.location.search);
 const bookingId = params.get("booking_id");
 
 if (!bookingId) {
-  document.body.innerHTML = "<h2>Booking ID tidak dijumpai.</h2>";
+  document.body.innerHTML = "<h2 style='color:white'>Booking ID tidak dijumpai.</h2>";
 } else {
   fetch(`${API_BASE}/api/bookings/${bookingId}`)
     .then(res => res.json())
@@ -37,9 +136,9 @@ if (!bookingId) {
       document.getElementById("date").textContent =
         data.booking_date.split("T")[0];
     })
-    .catch(err => {
+    .catch(() => {
       document.body.innerHTML =
-        "<h2>Tempahan berjaya tetapi gagal papar maklumat.</h2>";
+        "<h2 style='color:white'>Tempahan berjaya tetapi gagal papar maklumat.</h2>";
     });
 }
 </script>
