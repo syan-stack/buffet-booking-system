@@ -28,11 +28,7 @@ router.post('/', async (req, res) => {
       });
     }
          // 🚫 BLOCK BOOKING HARI INI
-    const today = new Date();
-    today.setHours(0,0,0,0);
-
-    const selectedDate = new Date(booking_date);
-    selectedDate.setHours(0,1,5,2);
+    
 
     if (selectedDate.getTime() === today.getTime()) {
       return res.status(400).json({
