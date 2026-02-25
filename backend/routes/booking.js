@@ -27,6 +27,19 @@ router.post('/', async (req, res) => {
         error: 'Maklumat tidak lengkap'
       });
     }
+         // 🚫 BLOCK BOOKING HARI INI
+    const today = new Date();
+    today.setHours(0,0,0,0);
+
+    const selectedDate = new Date(booking_date);
+    selectedDate.setHours(0,0,0,0);
+
+    if (selectedDate.getTime() === today.getTime()) {
+      return res.status(400).json({
+        error: "Tempahan untuk hari ini telah ditutup."
+      });
+    }
+
     
 
     // Validate date format
