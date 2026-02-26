@@ -4,6 +4,7 @@ const pool = require('../config/db');
 
 const PRICE_ADULT = 49.9;
 const PRICE_CHILD = 39.9;
+const MAX_PAX_PER_DAY = 200;
 
 /**
  * =====================================================
@@ -27,7 +28,16 @@ router.post('/', async (req, res) => {
         error: 'Maklumat tidak lengkap'
       });
     }
-         // 🚫 BLOCK BOOKING HARI INI
+
+    // ✅ Validate date format
+    const parsedDate = new Date(booking_date);
+    if (isNaN(parsedDate.getTime())) {
+      return res.status(400).json({
+        error: 'Format tarikh tidak sah'
+      });
+    }
+
+    // 🚫 BLOCK BOOKING HARI INI
     const today = new Date();
     today.setHours(0,0,0,0);
 
@@ -37,16 +47,6 @@ router.post('/', async (req, res) => {
     if (selectedDate.getTime() === today.getTime()) {
       return res.status(400).json({
         error: "Tempahan untuk hari ini telah ditutup."
-      });
-    }
-
-    
-
-    // Validate date format
-    const parsedDate = new Date(booking_date);
-    if (isNaN(parsedDate.getTime())) {
-      return res.status(400).json({
-        error: 'Format tarikh tidak sah'
       });
     }
 
@@ -60,10 +60,37 @@ router.post('/', async (req, res) => {
       });
     }
 
+    /**
+     * 🔥 CHECK LIMIT 200 PAX (PAID ONLY)
+     */
+    const existing = await pool.query(
+      `SELECT COALESCE(SUM(total_pax),0) AS total
+       FROM bookings
+       WHERE booking_date = $1
+       AND payment_status = 'PAID'`,
+      [booking_date]
+    );
+
+    const currentPaidPax = Number(existing.rows[0].total);
+    const remainingPax = MAX_PAX_PER_DAY - currentPaidPax;
+
+    if (remainingPax <= 0) {
+      return res.status(400).json({
+        error: 'Tarikh ini telah penuh (200 pax).'
+      });
+    }
+
+    if (total_pax > remainingPax) {
+      return res.status(400).json({
+        error: `Baki pax tinggal ${remainingPax} sahaja untuk tarikh ini.`
+      });
+    }
+
     const total_amount =
       (adultNum * PRICE_ADULT) +
       (childNum * PRICE_CHILD);
 
+    // ✅ INSERT PENDING
     const result = await pool.query(
       `INSERT INTO bookings
        (booking_date, adult, child, total_pax, total_amount, email, customer_name, phone, payment_status)
@@ -97,7 +124,6 @@ router.post('/', async (req, res) => {
 /**
  * =====================================================
  * GET BOOKING BY ID
- * (ALLOW BOTH PENDING & PAID)
  * =====================================================
  */
 router.get('/:id', async (req, res) => {
@@ -134,5 +160,38 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+/**
+ * =====================================================
+ * GET AVAILABLE PAX BY DATE
+ * =====================================================
+ */
+router.get('/availability/:date', async (req, res) => {
+  try {
+    const { date } = req.params;
+
+    const MAX_PAX_PER_DAY = 200;
+
+    const result = await pool.query(
+      `SELECT COALESCE(SUM(total_pax),0) AS total
+       FROM bookings
+       WHERE booking_date = $1
+       AND payment_status = 'PAID'`,
+      [date]
+    );
+
+    const used = Number(result.rows[0].total);
+    const remaining = MAX_PAX_PER_DAY - used;
+
+    return res.json({
+      date,
+      used,
+      remaining: remaining < 0 ? 0 : remaining
+    });
+
+  } catch (err) {
+    console.error('AVAILABILITY ERROR:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
 
 module.exports = router;
