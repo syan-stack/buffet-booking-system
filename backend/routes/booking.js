@@ -76,7 +76,7 @@ router.post('/', async (req, res) => {
 
     if (remainingPax <= 0) {
       return res.status(400).json({
-        error: 'Tarikh ini telah penuh (200 pax).'
+        error: 'Tarikh ini telah penuh (180 pax).'
       });
     }
 
