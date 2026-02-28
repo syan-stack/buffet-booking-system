@@ -4,7 +4,7 @@ const pool = require('../config/db');
 
 const PRICE_ADULT = 49.9;
 const PRICE_CHILD = 39.9;
-const MAX_PAX_PER_DAY = 180;
+const MAX_PAX_PER_DAY = 200;
 
 /**
  * =====================================================
@@ -169,7 +169,7 @@ router.get('/availability/:date', async (req, res) => {
   try {
     const { date } = req.params;
 
-    const MAX_PAX_PER_DAY = 180;
+    const MAX_PAX_PER_DAY = 200;
 
     const result = await pool.query(
       `SELECT COALESCE(SUM(total_pax),0) AS total
